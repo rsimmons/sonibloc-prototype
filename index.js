@@ -54,8 +54,9 @@ document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('mousedown', function(e) {
     e.preventDefault();  
     bl.stop();
-    c.inputs.notes.emit('noteOn', {
-      pitch: 69 - 3*12 + randomElement([0, 3, 5, 7, 10, 12]),
+    c.inputs.notes.noteOnOff({
+      pitch: 31 + randomElement([0, 3, 5, 7, 10, 12]),
+      duration: 2,
     });
   });
 });

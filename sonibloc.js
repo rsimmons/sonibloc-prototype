@@ -14,40 +14,68 @@ function AudioOutput(node) {
 
 AudioOutput.prototype.type = 'audio';
 
-function NoteInput() {
+function NoteInput(parent) {
+  this.parent = parent;
   this.emitter = new EventEmitter2();
 }
 
-NoteInput.prototype.type = 'note';
-
-NoteInput.prototype.emit = function(event, data) {
-  this.emitter.emit(event, data);
-}
-
-NoteInput.prototype.on = function(event, func) {
-  this.emitter.on(event, func);
-}
-
-function NoteOutput() {
+function NoteOutput(parent) {
+  this.parent = parent;
   this.emitter = new EventEmitter2();
   this.connectedInputs = [];
-}
 
-NoteOutput.prototype.type = 'note';
-
-NoteOutput.prototype.emit = function(event, data) {
-  this.emitter.emit(event, data);
-}
-
-NoteOutput.prototype.connect = function(noteInput) {
-  // ad listener that will relay any events fire on this output to the input
+  var _this = this;
   this.emitter.onAny(function(data) {
-    noteInput.emitter.emit(this.event, data)
+    // on any event, relay to all connected inputs
+    for (var i = 0; i < _this.connectedInputs.length; i++) {
+      _this.connectedInputs[i].emit(this.event, data);
+    }
   });
 }
 
+NoteOutput.prototype.connect = function(noteInput) {
+  if (this.connectedInputs.indexOf(noteInput) < 0) {
+    this.connectedInputs.push(noteInput);
+  }
+}
+
 NoteOutput.prototype.disconnect = function() {
-  this.emitter.removeAllListeners();
+  this.connectedInputs = [];
+}
+
+NoteInput.prototype.type = NoteOutput.prototype.type = 'note';
+
+NoteInput.prototype.emit = NoteOutput.prototype.emit = function(event, data) {
+  this.emitter.emit(event, data);
+}
+
+NoteInput.prototype.on = NoteOutput.prototype.on = function(event, func) {
+  this.emitter.on(event, func);
+  return this;
+}
+
+// data must include pitch, and optionally can include time and velocity
+NoteInput.prototype.noteOn = NoteOutput.prototype.noteOn = function(data) {
+  this.emitter.emit('noteOn', data);
+}
+
+// data must include pitch, and optionally can include time and (strangely) velocity
+NoteInput.prototype.noteOff = NoteOutput.prototype.noteOff = function(data) {
+  this.emitter.emit('noteOff', data);
+}
+
+// data must include pitch and duration, and optionally can include time and velocity
+NoteInput.prototype.noteOnOff = NoteOutput.prototype.noteOnOff = function(data) {
+  this.emitter.emit('noteOn', data);
+
+  // NOTE: this is a bit tricky. if pitch is missing, we need to find the current AudioContext time to set the noteOff time.
+  var offData = {pitch: data.pitch, velocity: 0};
+  if (data.time) {
+    offData.time = data.time + data.duration;
+  } else {
+    offData.time = this.parent.audioContext.currentTime + data.duration;
+  }
+  this.emitter.emit('noteOff', offData);
 }
 
 function BlocBase(audioContext) {
@@ -59,6 +87,7 @@ function BlocBase(audioContext) {
   this.timeoutID = null;
 
   this.beats = new EventEmitter2();
+  this.beat = null;
 }
 
 /*********************************
@@ -71,6 +100,7 @@ BlocBase.prototype.start = function(tempo) {
 
   var TEMPO_DIVISION = 4;
   var ticksPerSec = tempo*TEMPO_DIVISION/60.0;
+  var secsPerTick = 60.0/(tempo*TEMPO_DIVISION);
 
   var _this = this;
 
@@ -96,12 +126,11 @@ BlocBase.prototype.start = function(tempo) {
     // console.log(bufferedUntil, bufferUntil);
     var TEMPO_DIVISION = 4;
     var endTick = Math.floor(ticksPerSec * bufferUntil);
-    // FIXME: if the tick fell exactly on the buffering boundary, it would get repeated I think
 
     var tick;
     for (tick = nextTick; tick <= endTick; tick++) {
       // console.log('handling tick', tick);
-      _this.beats.emit('16th', {time: startTime + (tick / ticksPerSec)});
+      _this.beats.emit('16th', {time: startTime + (tick * secsPerTick), duration: secsPerTick});
     }
     nextTick = tick;
 
@@ -153,7 +182,7 @@ BlocBase.prototype.addNoteInput = function(name) {
   }
 
   // create input object
-  var inp = new NoteInput();
+  var inp = new NoteInput(this);
   this.inputs[name] = inp;
 
   // return for easy chaining, especially adding listeners
@@ -168,7 +197,7 @@ BlocBase.prototype.addNoteOutput = function(name) {
   }
 
   // create output object
-  var outp = new NoteOutput();
+  var outp = new NoteOutput(this);
   this.outputs[name] = outp;
 
   // return reference to be later used to emit output events
