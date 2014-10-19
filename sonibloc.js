@@ -204,8 +204,8 @@ BlocBase.prototype.addMidiOutput = function(name) {
   return outp;
 }
 
-exports.createBlocClass = function(setup) {
-  var BlocClass = function(audioContext) {
+exports.createProcessorClass = function(setup) {
+  var ProcessorClass = function(audioContext) {
     // construct a bloc instance of this class
 
     // chain to the base class constructor
@@ -215,10 +215,10 @@ exports.createBlocClass = function(setup) {
     setup.call(this);
   }
 
-  BlocClass.prototype = Object.create(BlocBase.prototype);
-  BlocClass.prototype.constructor = BlocClass;
+  ProcessorClass.prototype = Object.create(BlocBase.prototype);
+  ProcessorClass.prototype.constructor = ProcessorClass;
 
-  // TODO: could add methods or properties if we wanted to BlocClass
+  // TODO: could add methods or properties if we wanted to ProcessorClass
 
-  return BlocClass;
+  return ProcessorClass;
 };

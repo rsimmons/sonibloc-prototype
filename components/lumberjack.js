@@ -2,7 +2,7 @@
 
 var sonibloc = require('../sonibloc.js');
 
-exports.Lumberjack = sonibloc.createBlocClass(function() {
+exports.Lumberjack = sonibloc.createProcessorClass(function() {
   var SAWCOUNT = 10;
   var ctx = this.audioContext;
 

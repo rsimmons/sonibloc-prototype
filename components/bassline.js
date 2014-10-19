@@ -6,7 +6,7 @@ function randomElement(arr) {
   return arr[Math.floor(Math.random()*arr.length)];
 }
 
-exports.BassLine = sonibloc.createBlocClass(function() {
+exports.BassLine = sonibloc.createProcessorClass(function() {
   var midiOut = this.addMidiOutput('midi');
 
   this.beats.on('16th', function(e) {

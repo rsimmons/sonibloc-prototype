@@ -2,7 +2,7 @@
 
 var sonibloc = require('../sonibloc.js');
 
-exports.FeedbackDelay = sonibloc.createBlocClass(function() {
+exports.FeedbackDelay = sonibloc.createProcessorClass(function() {
   var ctx = this.audioContext;
 
   var dryNode = ctx.createGain();
