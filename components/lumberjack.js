@@ -17,7 +17,7 @@ exports.Lumberjack = sonibloc.createBlocClass(function() {
 
   var voices = {}; // maps pitch (integer) to object of stuff we need to track for it
 
-  this.addNoteInput('notes')
+  this.addMidiInput('midi')
     .on('noteOn', function(n) {
       // console.log('noteOn', n);
       // if this note is already one, ignore

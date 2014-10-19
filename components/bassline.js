@@ -7,11 +7,11 @@ function randomElement(arr) {
 }
 
 exports.BassLine = sonibloc.createBlocClass(function() {
-  var noteOut = this.addNoteOutput('notes');
+  var midiOut = this.addMidiOutput('midi');
 
   this.beats.on('16th', function(e) {
     var pitch = 31 + randomElement([0, 3, 5, 7, 10, 12]); // random pitch from G minor pentatonic a few octaves down from middle
-    noteOut.noteOnOff({
+    midiOut.noteOnOff({
       time: e.time, // this time should always be in the future
       pitch: pitch,
       duration: e.duration,

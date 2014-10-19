@@ -14,12 +14,12 @@ function AudioOutput(node) {
 
 AudioOutput.prototype.type = 'audio';
 
-function NoteInput(parent) {
+function MidiInput(parent) {
   this.parent = parent;
   this.emitter = new EventEmitter2();
 }
 
-function NoteOutput(parent) {
+function MidiOutput(parent) {
   this.parent = parent;
   this.emitter = new EventEmitter2();
   this.connectedInputs = [];
@@ -33,39 +33,39 @@ function NoteOutput(parent) {
   });
 }
 
-NoteOutput.prototype.connect = function(noteInput) {
-  if (this.connectedInputs.indexOf(noteInput) < 0) {
-    this.connectedInputs.push(noteInput);
+MidiOutput.prototype.connect = function(midiInput) {
+  if (this.connectedInputs.indexOf(midiInput) < 0) {
+    this.connectedInputs.push(midiInput);
   }
 }
 
-NoteOutput.prototype.disconnect = function() {
+MidiOutput.prototype.disconnect = function() {
   this.connectedInputs = [];
 }
 
-NoteInput.prototype.type = NoteOutput.prototype.type = 'note';
+MidiInput.prototype.type = MidiOutput.prototype.type = 'midi';
 
-NoteInput.prototype.emit = NoteOutput.prototype.emit = function(event, data) {
+MidiInput.prototype.emit = MidiOutput.prototype.emit = function(event, data) {
   this.emitter.emit(event, data);
 }
 
-NoteInput.prototype.on = NoteOutput.prototype.on = function(event, func) {
+MidiInput.prototype.on = MidiOutput.prototype.on = function(event, func) {
   this.emitter.on(event, func);
   return this;
 }
 
 // data must include pitch, and optionally can include time and velocity
-NoteInput.prototype.noteOn = NoteOutput.prototype.noteOn = function(data) {
+MidiInput.prototype.noteOn = MidiOutput.prototype.noteOn = function(data) {
   this.emitter.emit('noteOn', data);
 }
 
 // data must include pitch, and optionally can include time and (strangely) velocity
-NoteInput.prototype.noteOff = NoteOutput.prototype.noteOff = function(data) {
+MidiInput.prototype.noteOff = MidiOutput.prototype.noteOff = function(data) {
   this.emitter.emit('noteOff', data);
 }
 
 // data must include pitch and duration, and optionally can include time and velocity
-NoteInput.prototype.noteOnOff = NoteOutput.prototype.noteOnOff = function(data) {
+MidiInput.prototype.noteOnOff = MidiOutput.prototype.noteOnOff = function(data) {
   this.emitter.emit('noteOn', data);
 
   // NOTE: this is a bit tricky. if pitch is missing, we need to find the current AudioContext time to set the noteOff time.
@@ -174,30 +174,30 @@ BlocBase.prototype.addAudioOutput = function(name, node) {
   this.outputs[name] = new AudioOutput(node);
 }
 
-BlocBase.prototype.addNoteInput = function(name) {
-  name = name || 'notes'; // default the name of the input to 'notes'
+BlocBase.prototype.addMidiInput = function(name) {
+  name = name || 'midi'; // default the name of the input to 'midi'
 
   if (this.inputs.hasOwnProperty(name)) {
     throw new Error('Already have input named ' + name + ', cannot add another');
   }
 
   // create input object
-  var inp = new NoteInput(this);
+  var inp = new MidiInput(this);
   this.inputs[name] = inp;
 
   // return for easy chaining, especially adding listeners
   return inp;
 }
 
-BlocBase.prototype.addNoteOutput = function(name) {
-  name = name || 'notes'; // default the name of the output to 'notes'
+BlocBase.prototype.addMidiOutput = function(name) {
+  name = name || 'midi'; // default the name of the output to 'midi'
 
   if (this.outputs.hasOwnProperty(name)) {
     throw new Error('Already have output named ' + name + ', cannot add another');
   }
 
   // create output object
-  var outp = new NoteOutput(this);
+  var outp = new MidiOutput(this);
   this.outputs[name] = outp;
 
   // return reference to be later used to emit output events

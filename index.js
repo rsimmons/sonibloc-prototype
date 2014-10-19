@@ -28,23 +28,12 @@ function randomElement(arr) {
 document.addEventListener('DOMContentLoaded', function() {
   initialize();
 
-/*
-  var cf = availableComponents.synth;
-  var c = cf.create(audioCtx);
-  c.out.audio.node.connect(audioCtx.destination);
-
-  document.addEventListener('mousedown', function(e) {
-    e.preventDefault();  
-    c.in.midi.emit({type: 'noteOn', pitch: 69 - 3*12 + randomElement([0, 3, 5, 7, 10, 12])});
-  });
-*/
-
   var bl = new availableComponents.bassline.BassLine(audioCtx);
   // var c = new availableComponents.synth2.Synth2(audioCtx);
   var c = new availableComponents.lumberjack.Lumberjack(audioCtx);
   var fbd = new availableComponents.feedbackdelay.FeedbackDelay(audioCtx);
 
-  bl.outputs.notes.connect(c.inputs.notes);
+  bl.outputs.midi.connect(c.inputs.midi);
   // c.outputs.audio.node.connect(audioCtx.destination);
   c.outputs.audio.node.connect(fbd.inputs.audio.node);
   fbd.outputs.audio.node.connect(audioCtx.destination);
@@ -54,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('mousedown', function(e) {
     e.preventDefault();  
     bl.stop();
-    c.inputs.notes.noteOnOff({
+    c.inputs.midi.noteOnOff({
       pitch: 31 + randomElement([0, 3, 5, 7, 10, 12]),
       duration: 2,
     });
