@@ -1,0 +1,38 @@
+/* better box model */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Raleway', sans-serif;
+  font-weight: 200;
+  /*font-size: 32px;*/
+}
+
+#main {
+  max-width: 900px;
+  margin: auto;
+}
+
+#left-column {
+  float: left;
+  width: 300px;
+  border: 1px solid black;
+}
+
+#component-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#right-column {
+}

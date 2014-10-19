@@ -1,0 +1,22 @@
+{
+  "name": "sonibloc-prototype",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Trying out ideas for tentative Sonibloc web audio component interface spec",
+  "main": "index.js",
+  "scripts": {
+    "build": "browserify index.js | uglifyjs -mc > bundle.js",
+    "watch": "watchify index.js -o bundle.js -v",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Russel Simmons",
+  "license": "MIT",
+  "devDependencies": {
+    "browserify": "^5.12.1",
+    "uglify-js": "^2.4.15",
+    "watchify": "^1.0.6"
+  },
+  "dependencies": {
+    "eventemitter2": "^0.4.14"
+  }
+}
