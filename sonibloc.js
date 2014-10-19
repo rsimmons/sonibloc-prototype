@@ -78,7 +78,7 @@ MidiInput.prototype.noteOnOff = MidiOutput.prototype.noteOnOff = function(data) 
   this.emitter.emit('noteOff', offData);
 }
 
-function BlocBase(audioContext) {
+function ProcessorBase(audioContext) {
   this.audioContext = audioContext;
 
   this.inputs = {};
@@ -94,7 +94,7 @@ function BlocBase(audioContext) {
  * EXTERNAL API
  *********************************/
 
-BlocBase.prototype.start = function(tempo) {
+ProcessorBase.prototype.start = function(tempo) {
   var TIMEOUT_DELAY = 0.05; // in seconds
   var BUFFER_DEPTH = 0.1; // in seconds
 
@@ -142,7 +142,7 @@ BlocBase.prototype.start = function(tempo) {
   timeoutFunc();
 }
 
-BlocBase.prototype.stop = function() {
+ProcessorBase.prototype.stop = function() {
   if (this.timeoutID) {
     clearTimeout(this.timeoutID);
 
@@ -154,7 +154,7 @@ BlocBase.prototype.stop = function() {
  * INTERNAL API
  *********************************/
 
-BlocBase.prototype.addAudioInput = function(name, node) {
+ProcessorBase.prototype.addAudioInput = function(name, node) {
   name = name || 'audio'; // default the name of the input to 'audio'
 
   if (this.inputs.hasOwnProperty(name)) {
@@ -164,7 +164,7 @@ BlocBase.prototype.addAudioInput = function(name, node) {
   this.inputs[name] = new AudioInput(node);
 }
 
-BlocBase.prototype.addAudioOutput = function(name, node) {
+ProcessorBase.prototype.addAudioOutput = function(name, node) {
   name = name || 'audio'; // default the name of the input to 'audio'
 
   if (this.outputs.hasOwnProperty(name)) {
@@ -174,7 +174,7 @@ BlocBase.prototype.addAudioOutput = function(name, node) {
   this.outputs[name] = new AudioOutput(node);
 }
 
-BlocBase.prototype.addMidiInput = function(name) {
+ProcessorBase.prototype.addMidiInput = function(name) {
   name = name || 'midi'; // default the name of the input to 'midi'
 
   if (this.inputs.hasOwnProperty(name)) {
@@ -189,7 +189,7 @@ BlocBase.prototype.addMidiInput = function(name) {
   return inp;
 }
 
-BlocBase.prototype.addMidiOutput = function(name) {
+ProcessorBase.prototype.addMidiOutput = function(name) {
   name = name || 'midi'; // default the name of the output to 'midi'
 
   if (this.outputs.hasOwnProperty(name)) {
@@ -209,13 +209,13 @@ exports.createProcessorClass = function(setup) {
     // construct a bloc instance of this class
 
     // chain to the base class constructor
-    BlocBase.call(this, audioContext);
+    ProcessorBase.call(this, audioContext);
 
     // invoke the provided setup method
     setup.call(this);
   }
 
-  ProcessorClass.prototype = Object.create(BlocBase.prototype);
+  ProcessorClass.prototype = Object.create(ProcessorBase.prototype);
   ProcessorClass.prototype.constructor = ProcessorClass;
 
   // TODO: could add methods or properties if we wanted to ProcessorClass
