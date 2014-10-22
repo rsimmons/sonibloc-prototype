@@ -204,21 +204,18 @@ ProcessorBase.prototype.addMidiOutput = function(name) {
   return outp;
 }
 
-exports.createProcessorClass = function(setup) {
-  var ProcessorClass = function(audioContext) {
-    // construct a bloc instance of this class
+exports.createBloc = function(setupFunc) {
+  return {
+    sonibloc: '0.0', // this indicates the version of the external API that this bloc adheres to
 
-    // chain to the base class constructor
-    ProcessorBase.call(this, audioContext);
+    createProcessor: function(audioContext) {
+      // create "bare"/base processor
+      var proc = new ProcessorBase(audioContext);
 
-    // invoke the provided setup method
-    setup.call(this);
+      // set it up to be a specific processor using provided setupFunc method
+      setupFunc.call(proc);
+
+      return proc;
+    },
   }
-
-  ProcessorClass.prototype = Object.create(ProcessorBase.prototype);
-  ProcessorClass.prototype.constructor = ProcessorClass;
-
-  // TODO: could add methods or properties if we wanted to ProcessorClass
-
-  return ProcessorClass;
 };

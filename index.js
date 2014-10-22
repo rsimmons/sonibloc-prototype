@@ -1,6 +1,6 @@
 'use strict';
 
-var availableComponents = {
+var blocs = {
   bassline: require('./components/bassline.js'),
   lumberjack: require('./components/lumberjack.js'),
   feedbackdelay: require('./components/feedbackdelay.js'),
@@ -13,7 +13,7 @@ function initialize() {
 
   var componentListElem = document.getElementById('component-list');
 
-  for (var k in availableComponents) {
+  for (var k in blocs) {
     var li = document.createElement('LI');
     li.appendChild(document.createTextNode(k));
     componentListElem.appendChild(li);
@@ -28,14 +28,12 @@ function randomElement(arr) {
 document.addEventListener('DOMContentLoaded', function() {
   initialize();
 
-  var bl = new availableComponents.bassline.BassLine(audioCtx);
-  // var c = new availableComponents.synth2.Synth2(audioCtx);
-  var c = new availableComponents.lumberjack.Lumberjack(audioCtx);
-  var fbd = new availableComponents.feedbackdelay.FeedbackDelay(audioCtx);
+  var bl = new blocs.bassline.createProcessor(audioCtx);
+  var lumb = new blocs.lumberjack.createProcessor(audioCtx);
+  var fbd = new blocs.feedbackdelay.createProcessor(audioCtx);
 
-  bl.outputs.midi.connect(c.inputs.midi);
-  // c.outputs.audio.node.connect(audioCtx.destination);
-  c.outputs.audio.node.connect(fbd.inputs.audio.node);
+  bl.outputs.midi.connect(lumb.inputs.midi);
+  lumb.outputs.audio.node.connect(fbd.inputs.audio.node);
   fbd.outputs.audio.node.connect(audioCtx.destination);
 
   bl.start(120);
@@ -43,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('mousedown', function(e) {
     e.preventDefault();  
     bl.stop();
-    c.inputs.midi.noteOnOff({
+    lumb.inputs.midi.noteOnOff({
       pitch: 31 + randomElement([0, 3, 5, 7, 10, 12]),
       duration: 2,
     });
