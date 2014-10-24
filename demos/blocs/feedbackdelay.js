@@ -1,6 +1,6 @@
 'use strict';
 
-var sonibloc = require('../sonibloc.js');
+var sonibloc = require('../../sonibloc.js');
 
 module.exports = sonibloc.createBloc(function() {
   var ctx = this.audioContext;

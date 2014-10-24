@@ -4,9 +4,9 @@ module.exports = {
   initialize: function(audioContext) {
 
 //SHOWBEGIN
-var bl = require('../components/bassline.js').createProcessor(audioContext);
-var lumb = require('../components/lumberjack.js').createProcessor(audioContext);
-var fbd = require('../components/feedbackdelay.js').createProcessor(audioContext);
+var bl = require('./blocs/bassline.js').createProcessor(audioContext);
+var lumb = require('./blocs/lumberjack.js').createProcessor(audioContext);
+var fbd = require('./blocs/feedbackdelay.js').createProcessor(audioContext);
 
 bl.outputs.midi.connect(lumb.inputs.midi);
 lumb.outputs.audio.node.connect(fbd.inputs.audio.node);

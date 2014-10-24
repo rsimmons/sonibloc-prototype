@@ -1,6 +1,6 @@
 'use strict';
 
-var sonibloc = require('../sonibloc.js');
+var sonibloc = require('../../sonibloc.js');
 
 function randomElement(arr) {
   return arr[Math.floor(Math.random()*arr.length)];
