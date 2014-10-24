@@ -2,6 +2,10 @@
 
 var EventEmitter2 = require('eventemitter2').EventEmitter2;
 
+/*********************************
+ * PROCESSOR INPUT/OUTPUT CLASSES
+ *********************************/
+
 function AudioInput(node) {
   this.node = node;
 }
@@ -13,6 +17,10 @@ function AudioOutput(node) {
 }
 
 AudioOutput.prototype.type = 'audio';
+
+AudioOutput.prototype.disconnect = function() {
+  this.node.disconnect();
+}
 
 function MidiInput(parent) {
   this.parent = parent;
@@ -78,6 +86,10 @@ MidiInput.prototype.noteOnOff = MidiOutput.prototype.noteOnOff = function(data) 
   this.emitter.emit('noteOff', offData);
 }
 
+/*********************************
+ * PROCESSOR BASE
+ *********************************/
+
 function ProcessorBase(audioContext) {
   this.audioContext = audioContext;
 
@@ -88,15 +100,17 @@ function ProcessorBase(audioContext) {
 
   this.beats = new EventEmitter2();
   this.beat = null;
+
+  this.messages = new EventEmitter2();
 }
 
 /*********************************
- * EXTERNAL API
+ * PROCESSOR EXTERNAL API
  *********************************/
 
 ProcessorBase.prototype.start = function(tempo) {
   var TIMEOUT_DELAY = 0.05; // in seconds
-  var BUFFER_DEPTH = 0.1; // in seconds
+  var BUFFER_DEPTH = 0.10; // in seconds
 
   var TEMPO_DIVISION = 4;
   var ticksPerSec = tempo*TEMPO_DIVISION/60.0;
@@ -125,7 +139,7 @@ ProcessorBase.prototype.start = function(tempo) {
     // handle time range from bufferedUntil to bufferUntil
     // console.log(bufferedUntil, bufferUntil);
     var TEMPO_DIVISION = 4;
-    var endTick = Math.floor(ticksPerSec * bufferUntil);
+    var endTick = Math.floor(ticksPerSec * (bufferUntil - startTime));
 
     var tick;
     for (tick = nextTick; tick <= endTick; tick++) {
@@ -150,8 +164,12 @@ ProcessorBase.prototype.stop = function() {
   }
 }
 
+ProcessorBase.prototype.sendMessage = function(message, data) {
+  this.messages.emit(message, data);
+}
+
 /*********************************
- * INTERNAL API
+ * PROCESSOR INTERNAL API
  *********************************/
 
 ProcessorBase.prototype.addAudioInput = function(name, node) {
@@ -204,18 +222,54 @@ ProcessorBase.prototype.addMidiOutput = function(name) {
   return outp;
 }
 
-exports.createBloc = function(setupFunc) {
-  return {
+/*********************************
+ * VIEW BASE
+ *********************************/
+
+function ViewBase(processor, container) {
+  this.processor = processor;
+  this.container = container;
+}
+
+/*********************************
+ * EXPORTED MAIN FUNCTIONS
+ *********************************/
+
+exports.createBloc = function(processorFunc, viewFunc) {
+  var bloc = {
     sonibloc: '0.0', // this indicates the version of the external API that this bloc adheres to
-
-    createProcessor: function(audioContext) {
-      // create "bare"/base processor
-      var proc = new ProcessorBase(audioContext);
-
-      // set it up to be a specific processor using provided setupFunc method
-      setupFunc.call(proc);
-
-      return proc;
-    },
   }
+
+  bloc.createProcessor = function(audioContext) {
+    // create "bare"/base processor
+    var proc = new ProcessorBase(audioContext);
+
+    // set it up to be a specific processor using provided method
+    processorFunc.call(proc);
+
+    return proc;
+  }
+
+  if (viewFunc) {
+    bloc.createView = function(processor, container) {
+      // create "bare"/base view
+      var view = new ViewBase(processor, container);
+
+      // set it up to be a specific view using provided method
+      viewFunc.call(view);
+
+      return view;
+    }
+  }
+
+  return bloc;
 };
+
+/*********************************
+ * EXPORTED UTILITY FUNCTIONS
+ *********************************/
+
+exports.addPressListener = function(elem, fn) {
+  elem.addEventListener('mousedown', fn, false);
+  elem.addEventListener('touchstart', fn, false);
+}

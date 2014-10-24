@@ -1,49 +1,79 @@
 'use strict';
 
-var blocs = {
-  bassline: require('./components/bassline.js'),
-  lumberjack: require('./components/lumberjack.js'),
-  feedbackdelay: require('./components/feedbackdelay.js'),
-};
+var fs = require('fs');
+
+// this is ugly but need to repeat crap here so brfs can statically evaluate at browserify-time
+// TODO: write small script to generate this and require it
+var demos = {
+  demo1: {code: fs.readFileSync(__dirname + '/demos/demo1.js', 'utf8'), module: require('./demos/demo1.js')},
+  demo2: {code: fs.readFileSync(__dirname + '/demos/demo2.js', 'utf8'), module: require('./demos/demo2.js')},
+}
+var defaultDemo = 'demo1';
 
 var audioCtx;
+var codeColumnElem = document.getElementById('code-column');
+var uiColumnElem = document.getElementById('ui-column');
+var currentDemo;
+
+function selectDemo(name) {
+  if (currentDemo) {
+    // terminate
+    if (currentDemo.terminator) {
+      currentDemo.terminator();
+    }
+    delete currentDemo.terminator;
+
+    // clear out old UI
+    uiColumnElem.innerHTML = '';
+
+    // hide old code
+    currentDemo.preElem.style.display = 'none';
+  }
+
+  currentDemo = demos[name];
+
+  // initialize
+  currentDemo.terminator = currentDemo.module.initialize(audioCtx, uiColumnElem);
+
+  // show new code
+  currentDemo.preElem.style.display = 'block';
+}
 
 function initialize() {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-  var componentListElem = document.getElementById('component-list');
+  var demosListElem = document.getElementById('demos-list');
 
-  for (var k in blocs) {
+  for (var k in demos) {
     var li = document.createElement('LI');
+    li.setAttribute('class', 'demo-choice');
     li.appendChild(document.createTextNode(k));
-    componentListElem.appendChild(li);
-  }
-  // console.log(componentListElem);
-}
+    demosListElem.appendChild(li);
 
-function randomElement(arr) {
-  return arr[Math.floor(Math.random()*arr.length)];
+    var ce = document.createElement('CODE');
+    ce.className = 'language-javascript';
+    var extractedCode = /\/\/SHOWBEGIN([^]*)\/\/SHOWEND/gm.exec(demos[k].code)[1].trim();
+    ce.appendChild(document.createTextNode(extractedCode));
+
+    var pe = document.createElement('PRE');
+    pe.className = 'code-wrapper';
+    pe.style.display = 'none';
+    pe.appendChild(ce);
+
+    codeColumnElem.appendChild(pe);
+
+    demos[k].preElem = pe;
+  }
+
+  document.addEventListener('click', function(e) {
+    if (e.target.className === 'demo-choice') {
+      selectDemo(e.target.textContent);
+    }
+  });
+
+  selectDemo(defaultDemo);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
   initialize();
-
-  var bl = new blocs.bassline.createProcessor(audioCtx);
-  var lumb = new blocs.lumberjack.createProcessor(audioCtx);
-  var fbd = new blocs.feedbackdelay.createProcessor(audioCtx);
-
-  bl.outputs.midi.connect(lumb.inputs.midi);
-  lumb.outputs.audio.node.connect(fbd.inputs.audio.node);
-  fbd.outputs.audio.node.connect(audioCtx.destination);
-
-  bl.start(120);
-
-  document.addEventListener('mousedown', function(e) {
-    e.preventDefault();  
-    bl.stop();
-    lumb.inputs.midi.noteOnOff({
-      pitch: 31 + randomElement([0, 3, 5, 7, 10, 12]),
-      duration: 2,
-    });
-  });
 });
