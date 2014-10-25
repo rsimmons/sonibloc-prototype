@@ -12,12 +12,12 @@ bl.outputs.midi.connect(lumb.inputs.midi);
 lumb.outputs.audio.node.connect(fbd.inputs.audio.node);
 fbd.outputs.audio.node.connect(audioContext.destination);
 
-bl.start(120);
+bl.startBeat(120);
 //SHOWEND
 
     return function terminate() {
       fbd.outputs.audio.disconnect();
-      bl.stop();
+      bl.stopBeat();
     };
   },
 }

@@ -2,6 +2,8 @@
 
 var EventEmitter2 = require('eventemitter2').EventEmitter2;
 
+var beatclock = require('./beatclock.js');
+
 /*********************************
  * PROCESSOR INPUT/OUTPUT CLASSES
  *********************************/
@@ -98,8 +100,11 @@ function ProcessorBase(audioContext) {
 
   this.timeoutID = null;
 
-  this.beats = new EventEmitter2();
-  this.beat = null;
+  // by default we create our own master. TODO: take on as optional argument
+  var master = new beatclock.BeatClock(audioContext);
+  var slave = new beatclock.BeatClockSlave(master);
+  master.addSlave(slave);
+  this.beat = slave;
 
   this.messages = new EventEmitter2();
 }
@@ -108,60 +113,12 @@ function ProcessorBase(audioContext) {
  * PROCESSOR EXTERNAL API
  *********************************/
 
-ProcessorBase.prototype.start = function(tempo) {
-  var TIMEOUT_DELAY = 0.05; // in seconds
-  var BUFFER_DEPTH = 0.10; // in seconds
-
-  var TEMPO_DIVISION = 4;
-  var ticksPerSec = tempo*TEMPO_DIVISION/60.0;
-  var secsPerTick = 60.0/(tempo*TEMPO_DIVISION);
-
-  var _this = this;
-
-  var startTime = null;
-  var bufferedUntil = null;
-  var nextTick = 0; // next tick number we should emit
-
-  var timeoutFunc = function() {
-    var t = _this.audioContext.currentTime;
-
-    if (startTime === null) {
-      startTime = t;
-      bufferedUntil = t;
-    }
-
-    if (bufferedUntil < t) {
-      console.log('FELL BEHIND BY', t - bufferedUntil);
-    }
-
-    var bufferUntil = t + BUFFER_DEPTH;
-
-    // handle time range from bufferedUntil to bufferUntil
-    // console.log(bufferedUntil, bufferUntil);
-    var TEMPO_DIVISION = 4;
-    var endTick = Math.floor(ticksPerSec * (bufferUntil - startTime));
-
-    var tick;
-    for (tick = nextTick; tick <= endTick; tick++) {
-      // console.log('handling tick', tick);
-      _this.beats.emit('16th', {time: startTime + (tick * secsPerTick), duration: secsPerTick});
-    }
-    nextTick = tick;
-
-    bufferedUntil = bufferUntil;
-
-    _this.timeoutID = setTimeout(timeoutFunc, 1000*TIMEOUT_DELAY);
-  }
-
-  timeoutFunc();
+ProcessorBase.prototype.startBeat = function(tempo) {
+  this.beat.start(tempo);
 }
 
-ProcessorBase.prototype.stop = function() {
-  if (this.timeoutID) {
-    clearTimeout(this.timeoutID);
-
-    this.timeoutID = null;
-  }
+ProcessorBase.prototype.stopBeat = function() {
+  this.beat.stop();
 }
 
 ProcessorBase.prototype.sendMessage = function(message, data) {
