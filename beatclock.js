@@ -6,8 +6,10 @@ var EventEmitter2 = require('eventemitter2').EventEmitter2;
 
 function BeatClock(audioContext) {
   this.audioContext = audioContext;
-  this.timeoutID = null;
   this.slaves = [];
+
+  this.running = false;
+  this.timeoutID = null;
 }
 
 BeatClock.prototype.start = function(tempo) {
@@ -38,6 +40,10 @@ BeatClock.prototype.start = function(tempo) {
   }
 
   var timeoutFunc = function() {
+    if (!_this.running) {
+      throw new Error('Internal error: timeoutFunc called but clock not running');
+    }
+
     var t = _this.audioContext.currentTime;
 
     if (startTime === null) {
@@ -80,10 +86,14 @@ BeatClock.prototype.start = function(tempo) {
     _this.timeoutID = setTimeout(timeoutFunc, 1000*TIMEOUT_DELAY);
   }
 
+  this.running = true;
+
   timeoutFunc();
 }
 
 BeatClock.prototype.stop = function() {
+  this.running = false;
+
   if (this.timeoutID) {
     clearTimeout(this.timeoutID);
 
@@ -92,14 +102,39 @@ BeatClock.prototype.stop = function() {
 }
 
 BeatClock.prototype.addSlave = function(slave) {
+  slave.setMaster(this);
   this.slaves.push(slave);
 }
 
 BeatClock.prototype.merge = function(otherClock) {
-  // TODO: implement
-  // if both clocks are playing, merge should fail
-  // if one clock is playing, that becomes new master, and point other slaves at it
-  // if neither clock is playing, pick whichever
+  // if both clocks are running, merge fails
+  if (this.running && otherClock.running) {
+    throw new Error('Cannot merge two BeatClocks that are running');
+  }
+
+  // if one clock is playing, that becomes new master, and point other slaves at it.
+  // if neither runing, pick whichever has more slaves to be new clock
+  var newMaster, oldMaster;
+
+  if (this.running && !otherClock.running) {
+    newMaster = this;
+    oldMaster = otherClock;
+  } else if (!this.running && otherClock.running) {
+    newMaster = otherClock;
+    oldMaster = this;
+  } else if (this.slaves.length >= otherClock.slaves.length) {
+    newMaster = this;
+    oldMaster = otherClock;
+  } else {
+    newMaster = otherClock;
+    oldMaster = this;
+  }
+
+  // make all slaves of oldMaster become slaves of newMaster
+  for (var i = 0; i < oldMaster.slaves.length; i++) {
+    newMaster.addSlave(oldMaster.slaves[i]);
+  }
+  oldMaster.slaves = [];
 }
 
 /*********************************
@@ -113,6 +148,10 @@ function BeatClockSlave(master) {
 
 BeatClockSlave.prototype.mergeMasters = function(otherSlave) {
   this.master.merge(otherSlave.master);
+}
+
+BeatClockSlave.prototype.setMaster = function(master) {
+  this.master = master;
 }
 
 BeatClockSlave.prototype.emit = function(event, data) {

@@ -121,6 +121,10 @@ ProcessorBase.prototype.stopBeat = function() {
   this.beat.stop();
 }
 
+ProcessorBase.prototype.syncBeats = function(otherProc) {
+  this.beat.mergeMasters(otherProc.beat);
+}
+
 ProcessorBase.prototype.sendMessage = function(message, data) {
   this.messages.emit(message, data);
 }

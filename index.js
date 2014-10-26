@@ -8,6 +8,7 @@ var demos = {
   demo1: {code: fs.readFileSync(__dirname + '/demos/demo1.js', 'utf8'), module: require('./demos/demo1.js')},
   demo2: {code: fs.readFileSync(__dirname + '/demos/demo2.js', 'utf8'), module: require('./demos/demo2.js')},
   demo3: {code: fs.readFileSync(__dirname + '/demos/demo3.js', 'utf8'), module: require('./demos/demo3.js')},
+  demo4: {code: fs.readFileSync(__dirname + '/demos/demo4.js', 'utf8'), module: require('./demos/demo4.js')},
 }
 var defaultDemo = 'demo1';
 
