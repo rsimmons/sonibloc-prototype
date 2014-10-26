@@ -9,6 +9,7 @@ var demos = {
   demo2: {code: fs.readFileSync(__dirname + '/demos/demo2.js', 'utf8'), module: require('./demos/demo2.js')},
   demo3: {code: fs.readFileSync(__dirname + '/demos/demo3.js', 'utf8'), module: require('./demos/demo3.js')},
   demo4: {code: fs.readFileSync(__dirname + '/demos/demo4.js', 'utf8'), module: require('./demos/demo4.js')},
+  geiger: {code: fs.readFileSync(__dirname + '/demos/geiger.js', 'utf8'), module: require('./demos/geiger.js')},
 }
 var defaultDemo = 'demo1';
 

@@ -57,6 +57,13 @@ BeatClock.prototype.start = function(tempo) {
 
     var bufferUntil = t + BUFFER_DEPTH;
 
+    emitOnSlaves('interval', {
+      begin: bufferedUntil,
+      end: bufferUntil,
+      relativeBegin: bufferedUntil - startTime,
+      relativeEnd: bufferUntil - startTime,
+    });
+
     // handle time range from bufferedUntil to bufferUntil
     // console.log(bufferedUntil, bufferUntil);
     var endTick = Math.floor(ticksPerSec * (bufferUntil - startTime));
