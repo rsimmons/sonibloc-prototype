@@ -14,9 +14,15 @@ BeatClock.prototype.start = function(tempo) {
   var TIMEOUT_DELAY = 0.05; // in seconds
   var BUFFER_DEPTH = 0.10; // in seconds
 
-  var TEMPO_DIVISION = 4;
-  var ticksPerSec = tempo*TEMPO_DIVISION/60.0;
-  var secsPerTick = 60.0/(tempo*TEMPO_DIVISION);
+  var TICKS_PER_BEAT = 4;
+  var ticksPerSec = tempo*TICKS_PER_BEAT/60.0;
+  var secsPerTick = 60.0/(tempo*TICKS_PER_BEAT);
+
+  var emittedDivisions = {
+    '16th': TICKS_PER_BEAT/4,
+    '8th': TICKS_PER_BEAT/2,
+    'quarter': TICKS_PER_BEAT,
+  }
 
   var _this = this;
 
@@ -25,6 +31,7 @@ BeatClock.prototype.start = function(tempo) {
   var nextTick = 0; // next tick number we should emit
 
   function emitOnSlaves(event, data) {
+    // console.log('emitting', event, data);
     for (var i = 0; i < _this.slaves.length; i++) {
       _this.slaves[i].emit(event, data);
     }
@@ -46,13 +53,25 @@ BeatClock.prototype.start = function(tempo) {
 
     // handle time range from bufferedUntil to bufferUntil
     // console.log(bufferedUntil, bufferUntil);
-    var TEMPO_DIVISION = 4;
     var endTick = Math.floor(ticksPerSec * (bufferUntil - startTime));
 
     var tick;
     for (tick = nextTick; tick <= endTick; tick++) {
       // console.log('handling tick', tick);
-      emitOnSlaves('16th', {time: startTime + (tick * secsPerTick), duration: secsPerTick});
+      for (var div in emittedDivisions) {
+        if (emittedDivisions.hasOwnProperty(div)) {
+          var ticksPerDiv = emittedDivisions[div];
+          var tickTime = startTime + tick*secsPerTick;
+
+          if ((tick % ticksPerDiv) == 0) {
+            emitOnSlaves(div, {
+              time: tickTime,
+              duration: ticksPerDiv*secsPerTick,
+              number: Math.round(tick/ticksPerDiv)
+            });
+          }
+        }
+      }
     }
     nextTick = tick;
 
