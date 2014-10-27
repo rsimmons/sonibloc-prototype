@@ -14,11 +14,23 @@ function AudioInput(node) {
 
 AudioInput.prototype.type = 'audio';
 
+// hacky; used in AudioOutput.connect() to detect what's being connected to
+AudioInput.prototype.soniblocInput = true;
+
 function AudioOutput(node) {
   this.node = node;
 }
 
 AudioOutput.prototype.type = 'audio';
+
+AudioOutput.prototype.connect = function(target) {
+  if (target.soniblocInput) {
+    this.node.connect(target.node);
+  } else {
+    // assume it's a raw AudioNode/AudioParam/AudioOutputNode
+    this.node.connect(target);
+  }
+}
 
 AudioOutput.prototype.disconnect = function() {
   this.node.disconnect();

@@ -15,7 +15,7 @@ var lumberProc = lumber.createProcessor(audioContext);
 
 // connect up blocs
 qwertyProc.outputs.midi.connect(lumberProc.inputs.midi);
-lumberProc.outputs.audio.node.connect(audioContext.destination);
+lumberProc.outputs.audio.connect(audioContext.destination);
 //SHOWEND
 
     return function terminate() {

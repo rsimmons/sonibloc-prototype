@@ -44,7 +44,7 @@ var lumberProc = require('./blocs/lumberjack.js').createProcessor(audioContext);
 
 // connect up processors
 geigerProc.outputs.midi.connect(lumberProc.inputs.midi);
-lumberProc.outputs.audio.node.connect(audioContext.destination);
+lumberProc.outputs.audio.connect(audioContext.destination);
 
 // start beat clock. tempo doesn't matter since we don't actually follow the beat
 geigerProc.startBeat(120);

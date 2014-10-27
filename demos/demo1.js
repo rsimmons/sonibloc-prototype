@@ -10,7 +10,7 @@ container.innerHTML = '<div id="clickme" style="padding:20px;border:1px solid bl
 var lumb = require('./blocs/lumberjack.js').createProcessor(audioContext);
 
 // connect up blocs
-lumb.outputs.audio.node.connect(audioContext.destination);
+lumb.outputs.audio.connect(audioContext.destination);
 
 // helper function to choose random array elem
 function randomElement(arr) {
