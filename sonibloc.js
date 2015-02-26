@@ -5,7 +5,7 @@ var EventEmitter2 = require('eventemitter2').EventEmitter2;
 var beatclock = require('./beatclock.js');
 
 /*********************************
- * PROCESSOR INPUT/OUTPUT CLASSES
+ * BLOC INPUT/OUTPUT CLASSES
  *********************************/
 
 function AudioInput(node) {
@@ -101,11 +101,12 @@ MidiInput.prototype.noteOnOff = MidiOutput.prototype.noteOnOff = function(data) 
 }
 
 /*********************************
- * PROCESSOR BASE
+ * BLOC BASE
  *********************************/
 
-function ProcessorBase(audioContext) {
+function BlocBase(audioContext, container) {
   this.audioContext = audioContext;
+  this.container = container;
 
   this.inputs = {};
   this.outputs = {};
@@ -122,30 +123,30 @@ function ProcessorBase(audioContext) {
 }
 
 /*********************************
- * PROCESSOR EXTERNAL API
+ * BLOC EXTERNAL API
  *********************************/
 
-ProcessorBase.prototype.startBeat = function(tempo) {
+BlocBase.prototype.startBeat = function(tempo) {
   this.beat.start(tempo);
 }
 
-ProcessorBase.prototype.stopBeat = function() {
+BlocBase.prototype.stopBeat = function() {
   this.beat.stop();
 }
 
-ProcessorBase.prototype.syncBeats = function(otherProc) {
+BlocBase.prototype.syncBeats = function(otherProc) {
   this.beat.mergeMasters(otherProc.beat);
 }
 
-ProcessorBase.prototype.sendMessage = function(message, data) {
+BlocBase.prototype.sendMessage = function(message, data) {
   this.messages.emit(message, data);
 }
 
 /*********************************
- * PROCESSOR INTERNAL API
+ * BLOC INTERNAL API
  *********************************/
 
-ProcessorBase.prototype.addAudioInput = function(name, node) {
+BlocBase.prototype.addAudioInput = function(name, node) {
   name = name || 'audio'; // default the name of the input to 'audio'
 
   if (this.inputs.hasOwnProperty(name)) {
@@ -155,7 +156,7 @@ ProcessorBase.prototype.addAudioInput = function(name, node) {
   this.inputs[name] = new AudioInput(node);
 }
 
-ProcessorBase.prototype.addAudioOutput = function(name, node) {
+BlocBase.prototype.addAudioOutput = function(name, node) {
   name = name || 'audio'; // default the name of the input to 'audio'
 
   if (this.outputs.hasOwnProperty(name)) {
@@ -165,7 +166,7 @@ ProcessorBase.prototype.addAudioOutput = function(name, node) {
   this.outputs[name] = new AudioOutput(node);
 }
 
-ProcessorBase.prototype.addMidiInput = function(name) {
+BlocBase.prototype.addMidiInput = function(name) {
   name = name || 'midi'; // default the name of the input to 'midi'
 
   if (this.inputs.hasOwnProperty(name)) {
@@ -180,7 +181,7 @@ ProcessorBase.prototype.addMidiInput = function(name) {
   return inp;
 }
 
-ProcessorBase.prototype.addMidiOutput = function(name) {
+BlocBase.prototype.addMidiOutput = function(name) {
   name = name || 'midi'; // default the name of the output to 'midi'
 
   if (this.outputs.hasOwnProperty(name)) {
@@ -196,43 +197,22 @@ ProcessorBase.prototype.addMidiOutput = function(name) {
 }
 
 /*********************************
- * VIEW BASE
- *********************************/
-
-function ViewBase(processor, container) {
-  this.processor = processor;
-  this.container = container;
-}
-
-/*********************************
  * EXPORTED MAIN FUNCTIONS
  *********************************/
 
-exports.createBloc = function(processorFunc, viewFunc) {
+exports.createBloc = function(setupFunc) {
   var bloc = {
     sonibloc: '0.0', // this indicates the version of the external API that this bloc adheres to
   }
 
-  bloc.createProcessor = function(audioContext) {
-    // create "bare"/base processor
-    var proc = new ProcessorBase(audioContext);
+  bloc.create = function(audioContext, container) {
+    // create "bare"/base bloc
+    var b = new BlocBase(audioContext, container);
 
-    // set it up to be a specific processor using provided method
-    processorFunc.call(proc);
+    // set it up to be a specific bloc instance using provided method
+    setupFunc.call(b);
 
-    return proc;
-  }
-
-  if (viewFunc) {
-    bloc.createView = function(processor, container) {
-      // create "bare"/base view
-      var view = new ViewBase(processor, container);
-
-      // set it up to be a specific view using provided method
-      viewFunc.call(view);
-
-      return view;
-    }
+    return b;
   }
 
   return bloc;

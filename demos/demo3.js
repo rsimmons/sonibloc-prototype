@@ -5,21 +5,18 @@ module.exports = {
 
 //SHOWBEGIN
 // require and create qwerty hancock bloc (with view)
-var qwerty = require('./blocs/qwerty-hancock.js');
-var qwertyProc = qwerty.createProcessor(audioContext);
-var qwertyView = qwerty.createView(qwertyProc, container);
+var qwerty = require('./blocs/qwerty-hancock.js').create(audioContext, container);
 
 // require and create lumberjack bloc
-var lumber = require('./blocs/lumberjack.js');
-var lumberProc = lumber.createProcessor(audioContext);
+var lumber = require('./blocs/lumberjack.js').create(audioContext);
 
 // connect up blocs
-qwertyProc.outputs.midi.connect(lumberProc.inputs.midi);
-lumberProc.outputs.audio.connect(audioContext.destination);
+qwerty.outputs.midi.connect(lumber.inputs.midi);
+lumber.outputs.audio.connect(audioContext.destination);
 //SHOWEND
 
     return function terminate() {
-      lumberProc.outputs.audio.disconnect();
+      lumber.outputs.audio.disconnect();
     };
   },
 }

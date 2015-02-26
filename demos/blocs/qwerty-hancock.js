@@ -512,40 +512,26 @@ function freqToMidi(freq) {
 }
 
 module.exports = sonibloc.createBloc(
-  // set up processor
     function() {
         var midiOut = this.addMidiOutput('midi');
 
-        this.messages.on('keyDown', function(pitch) {
-            midiOut.noteOn({pitch: pitch});
+        // fill interface into container
+        this.container.innerHTML = '<div id="qwerty-holder"></div>';
+
+        var keyboard = new QwertyHancock({
+            id: 'qwerty-holder',
+            width: 460,
+            height: 150,
+            octaves: 2,
+            startNote: 'C3',
         });
 
-        this.messages.on('keyUp', function(pitch) {
-            midiOut.noteOff({pitch: pitch});
-        });
-  },
+        keyboard.keyDown = function(note, frequency) {
+            midiOut.noteOn({pitch: freqToMidi(frequency)});
+        };
 
-  // set up interface
-  function() {
-    // fill interface into container
-    this.container.innerHTML = '<div id="qwerty-holder"></div>';
-
-    var keyboard = new QwertyHancock({
-        id: 'qwerty-holder',
-        width: 460,
-        height: 150,
-        octaves: 2,
-        startNote: 'C3',
-    });
-
-    var _this = this;
-
-    keyboard.keyDown = function(note, frequency) {
-        _this.processor.sendMessage('keyDown', freqToMidi(frequency));
-    };
-
-    keyboard.keyUp = function(note, frequency) {
-        _this.processor.sendMessage('keyUp', freqToMidi(frequency));
-    };
-  }
+        keyboard.keyUp = function(note, frequency) {
+            midiOut.noteOff({pitch: freqToMidi(frequency)});
+        };
+    }
 );

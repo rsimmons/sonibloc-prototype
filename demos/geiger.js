@@ -8,7 +8,7 @@ var sonibloc = require('../sonibloc.js');
 
 // define a "geiger counter" bloc that emits midi notes
 //  at exponentially distributed random intervals
-var geiger = sonibloc.createBloc(function() {
+var geigerClass = sonibloc.createBloc(function() {
   var RATE = 4; // avg clicks per second. this could be a parameter of the bloc
 
   var midiOut = this.addMidiOutput('midi');
@@ -38,22 +38,22 @@ var geiger = sonibloc.createBloc(function() {
   });
 });
 
-// create processors
-var geigerProc = geiger.createProcessor(audioContext);
-var lumberProc = require('./blocs/lumberjack.js').createProcessor(audioContext);
+// create blocs
+var geiger = geigerClass.create(audioContext);
+var lumber = require('./blocs/lumberjack.js').create(audioContext);
 
-// connect up processors
-geigerProc.outputs.midi.connect(lumberProc.inputs.midi);
-lumberProc.outputs.audio.connect(audioContext.destination);
+// connect up blocs
+geiger.outputs.midi.connect(lumber.inputs.midi);
+lumber.outputs.audio.connect(audioContext.destination);
 
 // start beat clock. tempo doesn't matter since we don't actually follow the beat
-geigerProc.startBeat(120);
+geiger.startBeat(120);
 
 //SHOWEND
 
     return function terminate() {
-      geigerProc.stopBeat();
-      lumberProc.outputs.audio.disconnect();
+      geiger.stopBeat();
+      lumber.outputs.audio.disconnect();
     };
   },
 }
