@@ -2,7 +2,7 @@
 
 var EventEmitter2 = require('eventemitter2').EventEmitter2;
 
-var beatclock = require('./beatclock.js');
+var scheduler = require('./scheduler.js');
 
 /*********************************
  * BLOC INPUT/OUTPUT CLASSES
@@ -100,6 +100,52 @@ MidiInput.prototype.noteOnOff = MidiOutput.prototype.noteOnOff = function(data) 
   this.emitter.emit('noteOff', offData);
 }
 
+// TRIGGERS
+
+function TriggerInput(parent) {
+  this.parent = parent;
+  this.emitter = new EventEmitter2();
+}
+
+function TriggerOutput(parent) {
+  this.parent = parent;
+  this.emitter = new EventEmitter2();
+  this.connectedInputs = [];
+
+  var _this = this;
+  this.emitter.onAny(function(data) {
+    // on any event, relay to all connected inputs
+    for (var i = 0; i < _this.connectedInputs.length; i++) {
+      _this.connectedInputs[i].emit(this.event, data);
+    }
+  });
+}
+
+TriggerOutput.prototype.connect = function(triggerInput) {
+  if (this.connectedInputs.indexOf(triggerInput) < 0) {
+    this.connectedInputs.push(triggerInput);
+  }
+}
+
+TriggerOutput.prototype.disconnect = function() {
+  this.connectedInputs = [];
+}
+
+TriggerInput.prototype.type = TriggerOutput.prototype.type = 'trigger';
+
+TriggerInput.prototype.emit = TriggerOutput.prototype.emit = function(event, data) {
+  this.emitter.emit(event, data);
+}
+
+TriggerInput.prototype.on = TriggerOutput.prototype.on = function(event, func) {
+  this.emitter.on(event, func);
+  return this;
+}
+
+TriggerInput.prototype.trigger = TriggerOutput.prototype.trigger = function(data) {
+  this.emitter.emit('trigger', data);
+}
+
 /*********************************
  * BLOC BASE
  *********************************/
@@ -111,35 +157,15 @@ function BlocBase(audioContext, container) {
   this.inputs = {};
   this.outputs = {};
 
-  this.timeoutID = null;
-
-  // by default we create our own master. TODO: take on as optional argument
-  var master = new beatclock.BeatClock(audioContext);
-  var slave = new beatclock.BeatClockSlave(master);
-  master.addSlave(slave);
-  this.beat = slave;
-
-  this.messages = new EventEmitter2();
+  this.scheduler = new scheduler.Scheduler(audioContext);
 }
 
 /*********************************
  * BLOC EXTERNAL API
  *********************************/
 
-BlocBase.prototype.startBeat = function(tempo) {
-  this.beat.start(tempo);
-}
-
-BlocBase.prototype.stopBeat = function() {
-  this.beat.stop();
-}
-
-BlocBase.prototype.syncBeats = function(otherProc) {
-  this.beat.mergeMasters(otherProc.beat);
-}
-
-BlocBase.prototype.sendMessage = function(message, data) {
-  this.messages.emit(message, data);
+BlocBase.prototype.shutdown = function() {
+  this.scheduler.stop();
 }
 
 /*********************************
@@ -195,6 +221,37 @@ BlocBase.prototype.addMidiOutput = function(name) {
   // return reference to be later used to emit output events
   return outp;
 }
+
+BlocBase.prototype.addTriggerInput = function(name) {
+  name = name || 'trigger'; // default the name of the input to 'trigger'
+
+  if (this.inputs.hasOwnProperty(name)) {
+    throw new Error('Already have input named ' + name + ', cannot add another');
+  }
+
+  // create input object
+  var inp = new TriggerInput(this);
+  this.inputs[name] = inp;
+
+  // return for easy chaining, especially adding listeners
+  return inp;
+}
+
+BlocBase.prototype.addTriggerOutput = function(name) {
+  name = name || 'trigger'; // default the name of the output to 'trigger'
+
+  if (this.outputs.hasOwnProperty(name)) {
+    throw new Error('Already have output named ' + name + ', cannot add another');
+  }
+
+  // create output object
+  var outp = new TriggerOutput(this);
+  this.outputs[name] = outp;
+
+  // return reference to be later used to emit output events
+  return outp;
+}
+
 
 /*********************************
  * EXPORTED MAIN FUNCTIONS

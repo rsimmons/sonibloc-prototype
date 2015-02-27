@@ -6,16 +6,15 @@ module.exports = {
 //SHOWBEGIN
 var sonibloc = require('../sonibloc.js');
 
-// define a "geiger counter" bloc that emits midi notes
-//  at exponentially distributed random intervals
-var geigerClass = sonibloc.createBloc(function() {
+// define a bloc that emits triggers notes at exponentially distributed random intervals
+var expoTrigClass = sonibloc.createBloc(function() {
   var RATE = 4; // avg clicks per second. this could be a parameter of the bloc
 
-  var midiOut = this.addMidiOutput('midi');
+  var triggerOut = this.addTriggerOutput('trigger');
 
-  // interval events let us use the beat clock to help us do "raw" scheduling,
-  //  for events that don't happen on the beat
-  this.beat.on('interval', function(e) {
+  // do "raw" scheduling of upcoming events since they don't happen on any sort of beat.
+  // start immediately when bloc is created, and always be running
+  this.scheduler.start(function(e) {
     var cursor = e.begin;
 
     while (true) {
@@ -28,31 +27,41 @@ var geigerClass = sonibloc.createBloc(function() {
         break;
       }
 
-      // emit a short note at a fixed pitch
-      midiOut.noteOnOff({
+      // emit trigger
+      triggerOut.trigger({
         time: cursor,
-        pitch: 80,
-        duration: 0.05,
       });
     }
   });
 });
 
+var trigNoteClass = sonibloc.createBloc(function() {
+  var triggerIn = this.addTriggerInput('trigger');
+  var midiOut = this.addMidiOutput('midi');
+
+  triggerIn.on('trigger', function(e) {
+      midiOut.noteOnOff({
+        time: e.time,
+        pitch: 80,
+        duration: 0.05,
+      });
+  });
+});
+
 // create blocs
-var geiger = geigerClass.create(audioContext);
+var expoTrig = expoTrigClass.create(audioContext);
+var trigNote = trigNoteClass.create(audioContext);
 var lumber = require('./blocs/lumberjack.js').create(audioContext);
 
 // connect up blocs
-geiger.outputs.midi.connect(lumber.inputs.midi);
+expoTrig.outputs.trigger.connect(trigNote.inputs.trigger);
+trigNote.outputs.midi.connect(lumber.inputs.midi);
 lumber.outputs.audio.connect(audioContext.destination);
-
-// start beat clock. tempo doesn't matter since we don't actually follow the beat
-geiger.startBeat(120);
 
 //SHOWEND
 
     return function terminate() {
-      geiger.stopBeat();
+      expoTrig.shutdown(); // need to do this so it doesn't keep triggering and leak timer
       lumber.outputs.audio.disconnect();
     };
   },
