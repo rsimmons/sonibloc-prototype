@@ -1,8 +1,8 @@
 {
-  "name": "sonibloc-prototype",
+  "name": "sonibloc-demosite1",
   "version": "0.0.0",
   "private": true,
-  "description": "Trying out ideas for tentative Sonibloc web audio component interface spec",
+  "description": "First demo site for Sonibloc prototype",
   "main": "index.js",
   "scripts": {
     "build": "browserify -t brfs index.js | uglifyjs -mc > bundle.js",
@@ -18,6 +18,6 @@
     "watchify": "^1.0.6"
   },
   "dependencies": {
-    "eventemitter2": "^0.4.14"
+    "sonibloc": "file:../sonibloc"
   }
 }

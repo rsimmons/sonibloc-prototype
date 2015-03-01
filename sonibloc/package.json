@@ -1,0 +1,15 @@
+{
+  "name": "sonibloc",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Sonibloc base library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Russel Simmons <russ@rsimmons.org>",
+  "license": "MIT",
+  "dependencies": {
+    "eventemitter2": "^0.4.14"
+  }
+}

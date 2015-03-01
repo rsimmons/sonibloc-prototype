@@ -4,7 +4,7 @@ module.exports = {
   initialize: function(audioContext) {
 
 //SHOWBEGIN
-var sonibloc = require('../sonibloc.js');
+var sonibloc = require('sonibloc');
 
 // define a bloc that emits triggers notes at exponentially distributed random intervals
 var expoTrigClass = sonibloc.createBloc(function() {
