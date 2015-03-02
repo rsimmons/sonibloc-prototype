@@ -504,7 +504,7 @@ var QwertyHancock = function (settings) {
  * SONIBLC WRAPPING
  *********************************/
 
-var sonibloc = require('../../sonibloc.js');
+var sonibloc = require('sonibloc');
 
 // this is a hack, but avoids messing with internals of original lib
 function freqToMidi(freq) {

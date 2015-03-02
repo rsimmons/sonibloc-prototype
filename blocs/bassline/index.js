@@ -1,6 +1,6 @@
 'use strict';
 
-var sonibloc = require('../../sonibloc.js');
+var sonibloc = require('sonibloc');
 
 function randomElement(arr) {
   return arr[Math.floor(Math.random()*arr.length)];
@@ -15,7 +15,7 @@ module.exports = sonibloc.createBloc(function() {
     midiOut.noteOnOff({
       time: e.time, // this time should always be in the future
       pitch: pitch,
-      duration: 0.05,
+      duration: 0.125,
     });
   });
 });

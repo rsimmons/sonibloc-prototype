@@ -51,7 +51,7 @@ var trigNoteClass = sonibloc.createBloc(function() {
 // create blocs
 var expoTrig = expoTrigClass.create(audioContext);
 var trigNote = trigNoteClass.create(audioContext);
-var lumber = require('./blocs/lumberjack.js').create(audioContext);
+var lumber = require('sonibloc-lumberjack').create(audioContext);
 
 // connect up blocs
 expoTrig.outputs.trigger.connect(trigNote.inputs.trigger);

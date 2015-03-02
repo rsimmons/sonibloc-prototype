@@ -7,7 +7,7 @@ container.innerHTML = '<div id="clickme" style="padding:20px;border:1px solid bl
 
 //SHOWBEGIN
 // require blocs
-var lumb = require('./blocs/lumberjack.js').create(audioContext);
+var lumb = require('sonibloc-lumberjack').create(audioContext);
 
 // connect up blocs
 lumb.outputs.audio.connect(audioContext.destination);

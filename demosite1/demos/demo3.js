@@ -5,10 +5,10 @@ module.exports = {
 
 //SHOWBEGIN
 // require and create qwerty hancock bloc (with view)
-var qwerty = require('./blocs/qwerty-hancock.js').create(audioContext, container);
+var qwerty = require('sonibloc-qwerty-hancock').create(audioContext, container);
 
 // require and create lumberjack bloc
-var lumber = require('./blocs/lumberjack.js').create(audioContext);
+var lumber = require('sonibloc-lumberjack').create(audioContext);
 
 // connect up blocs
 qwerty.outputs.midi.connect(lumber.inputs.midi);

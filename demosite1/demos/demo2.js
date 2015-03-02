@@ -4,10 +4,10 @@ module.exports = {
   initialize: function(audioContext) {
 
 //SHOWBEGIN
-var clock = require('./blocs/beatclock.js').create(audioContext);  // starts automatically
-var bl = require('./blocs/bassline.js').create(audioContext);
-var lumb = require('./blocs/lumberjack.js').create(audioContext);
-var fbd = require('./blocs/feedbackdelay.js').create(audioContext);
+var clock = require('sonibloc-beatclock').create(audioContext);  // starts automatically
+var bl = require('sonibloc-bassline').create(audioContext);
+var lumb = require('sonibloc-lumberjack').create(audioContext);
+var fbd = require('sonibloc-feedbackdelay').create(audioContext);
 
 clock.outputs.trigger16.connect(bl.inputs.trigger);
 bl.outputs.midi.connect(lumb.inputs.midi);

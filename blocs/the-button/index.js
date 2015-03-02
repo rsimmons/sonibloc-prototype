@@ -1,6 +1,6 @@
 'use strict';
 
-var sonibloc = require('../sonibloc.js');
+var sonibloc = require('sonibloc');
 
 module.exports = sonibloc.createBloc(
   // set up processor
