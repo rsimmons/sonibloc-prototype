@@ -1,10 +1,62 @@
 'use strict';
 
 var sonibloc = require('sonibloc');
-var dawson = require('./build/dawson');
+var uid = require('uid');
+// var newId = uid(12);
+
+var availableBlocs = [
+  {name: 'beatclock', _class: require('sonibloc-beatclock')},
+  {name: 'bassline', _class: require('sonibloc-bassline')},
+  {name: 'lumberjack', _class: require('sonibloc-lumberjack')},
+  {name: 'feedbackdelay', _class: require('sonibloc-feedbackdelay')},
+  {name: 'qwerty-hancock', _class: require('sonibloc-qwerty-hancock')},
+];
 
 module.exports = sonibloc.createBloc(
   function() {
-    dawson.renderApp(this.container);
+    var _thisBloc = this;
+    // var midiOut = this.addMidiOutput('midi');
+
+    var document = this.container.ownerDocument;
+
+    var blocListElem = document.createElement('div');
+    this.container.appendChild(blocListElem);
+
+    var selectElem = document.createElement('select');
+    // add initial empty option
+    selectElem.appendChild(document.createElement('option'));
+
+    for (var i = 0; i < availableBlocs.length; i++) {
+      var optionElem = document.createElement('option');
+      optionElem.textContent = availableBlocs[i].name;
+      selectElem.appendChild(optionElem);
+    }
+
+    var formElem = document.createElement('form');
+    formElem.appendChild(selectElem);
+    this.container.appendChild(formElem);
+
+    selectElem.addEventListener('change', function() {
+      if (selectElem.selectedIndex > 0) {
+        var selBloc = availableBlocs[selectElem.selectedIndex-1];
+        console.log('adding bloc:', selBloc.name);
+
+        var blocOuterElem = document.createElement('div');
+        blocOuterElem.className = 'bloc-outer';
+
+        var blocInfoElem = document.createElement('div');
+        blocInfoElem.textContent = selBloc.name;
+        blocOuterElem.appendChild(blocInfoElem);
+
+        var blocContainerElem = document.createElement('div');
+        blocOuterElem.appendChild(blocContainerElem);
+
+        blocListElem.appendChild(blocOuterElem);
+
+        // strangely, one bloc needed this to happen last, because it searched for an element by id page-wide. should probably fix that
+        var newBloc = selBloc._class.create(_thisBloc.audioContext, blocContainerElem);
+      }
+      selectElem.selectedIndex = 0; // reset to blank option
+    }, false);
   }
 );
