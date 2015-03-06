@@ -32,8 +32,12 @@ module.exports = sonibloc.createBloc(
       selectElem.appendChild(optionElem);
     }
 
+    var labelElem = document.createElement('label');
+    labelElem.textContent = 'Add ';
+    labelElem.appendChild(selectElem);
+
     var formElem = document.createElement('form');
-    formElem.appendChild(selectElem);
+    formElem.appendChild(labelElem);
     this.container.appendChild(formElem);
 
     selectElem.addEventListener('change', function() {
