@@ -45,16 +45,23 @@ module.exports = sonibloc.createBloc(
         blocOuterElem.className = 'bloc-outer';
 
         var blocInfoElem = document.createElement('div');
+        blocInfoElem.className = 'bloc-info';
         blocInfoElem.textContent = selBloc.name;
         blocOuterElem.appendChild(blocInfoElem);
 
         var blocContainerElem = document.createElement('div');
+        blocContainerElem.className += 'bloc-container';
         blocOuterElem.appendChild(blocContainerElem);
 
         blocListElem.appendChild(blocOuterElem);
 
         // strangely, one bloc needed this to happen last, because it searched for an element by id page-wide. should probably fix that
         var newBloc = selBloc._class.create(_thisBloc.audioContext, blocContainerElem);
+
+        if (!blocContainerElem.hasChildNodes()) {
+          blocContainerElem.className += ' bloc-container-empty';
+          blocContainerElem.textContent = 'bloc has no UI';
+        }
       }
       selectElem.selectedIndex = 0; // reset to blank option
     }, false);
