@@ -53,6 +53,11 @@ module.exports = sonibloc.createBloc(
         blocInfoElem.textContent = selBloc.name;
         blocOuterElem.appendChild(blocInfoElem);
 
+        var blocRemoveElem = document.createElement('button');
+        blocRemoveElem.className = 'bloc-remove';
+        blocRemoveElem.textContent = 'X';
+        blocOuterElem.appendChild(blocRemoveElem);
+
         var blocContainerElem = document.createElement('div');
         blocContainerElem.className += 'bloc-container';
         blocOuterElem.appendChild(blocContainerElem);
@@ -64,7 +69,7 @@ module.exports = sonibloc.createBloc(
 
         if (!blocContainerElem.hasChildNodes()) {
           blocContainerElem.className += ' bloc-container-empty';
-          blocContainerElem.textContent = 'bloc has no UI';
+          blocContainerElem.textContent = '(no interface)';
         }
       }
       selectElem.selectedIndex = 0; // reset to blank option
