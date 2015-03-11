@@ -62,17 +62,19 @@ var DawsonApp = React.createClass({
     return {blocs: []};
   },
 
-  onAddBlocSelectChange: function(e) {
+  addBloc: function(blocClass, nameHint) {
+    var newId = uid(12);
+    var newBlocs = this.state.blocs.concat({id: newId, blocClass: blocClass, name: nameHint + ' (' + newId.substring(0, 7) + ')'});
+
+    this.setState({blocs: newBlocs});
+  },
+
+  handleAddBlocSelectChange: function(e) {
     var selectElem = this.refs.addBlocSelect.getDOMNode();
 
     if (selectElem.selectedIndex > 0) {
       var selBloc = availableBlocs[selectElem.selectedIndex-1];
-      var newId = uid(12);
-      var newBlocs = this.state.blocs.concat({id: newId, blocClass: selBloc._class, name: selBloc.name + ' (' + newId.substring(0, 7) + ')'});
-
-      console.log('adding bloc', selBloc.name, 'id', newId);
-
-      this.setState({blocs: newBlocs});
+      this.addBloc(selBloc._class, selBloc.name);
     }
 
     selectElem.selectedIndex = 0; // reset to blank option
@@ -113,7 +115,7 @@ var DawsonApp = React.createClass({
           })}
         </div>
         <form className="add-bloc-form">
-          <label>Add Bloc <select ref="addBlocSelect" onChange={this.onAddBlocSelectChange}>
+          <label>Add Bloc <select ref="addBlocSelect" onChange={this.handleAddBlocSelectChange}>
             <option />
             {availableBlocs.map(function(i) {
               return <option key={i.name}>{i.name}</option>;
