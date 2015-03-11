@@ -13,16 +13,7 @@ var availableBlocs = [
 
 var BlocListItem = React.createClass({
   componentDidMount: function() {
-    var containerElem = this.refs.blocContainer.getDOMNode();
-
-    // instantiate the actual bloc
-    var newBloc = this.props.blocClass.create(this.props.audioContext, containerElem);
-
-    // if bloc didn't create a view/UI, then put placeholder stuff
-    if (!containerElem.hasChildNodes()) {
-      containerElem.className += ' bloc-container-empty';
-      containerElem.textContent = '(no interface)';
-    }
+    this.refs.outerContainer.getDOMNode().appendChild(this.props.containerElem);
   },
 
   submitRemove: function(e) {
@@ -50,7 +41,7 @@ var BlocListItem = React.createClass({
               <button className="bloc-remove">X</button>
             </form>
           </div>
-          <div ref="blocContainer" className="bloc-container" />
+          <div ref="outerContainer" className="bloc-container" />
         </div>
       </div>
     );
@@ -64,7 +55,21 @@ var DawsonApp = React.createClass({
 
   addBloc: function(blocClass, nameHint) {
     var newId = uid(12);
-    var newBlocs = this.state.blocs.concat({id: newId, blocClass: blocClass, name: nameHint + ' (' + newId.substring(0, 7) + ')'});
+
+    // create a raw-DOM container element to contain bloc view/UI
+    var document = this.getDOMNode().ownerDocument; // is this safe? seems OK..
+    var containerElem = document.createElement('div');
+
+    // instantiate the actual bloc
+    var blocObj = blocClass.create(this.props.audioContext, containerElem);
+
+    // if bloc didn't create any view/UI, then put placeholder stuff
+    if (!containerElem.hasChildNodes()) {
+      containerElem.className += ' bloc-container-empty';
+      containerElem.textContent = '(no interface)';
+    }
+
+    var newBlocs = this.state.blocs.concat({id: newId, containerElem: containerElem, name: nameHint + ' (' + newId.substring(0, 7) + ')'});
 
     this.setState({blocs: newBlocs});
   },
@@ -108,8 +113,7 @@ var DawsonApp = React.createClass({
             return <BlocListItem
               key={i.id}
               name={i.name}
-              blocClass={i.blocClass}
-              audioContext={thisApp.props.audioContext}
+              containerElem={i.containerElem}
               removeFunc={function() { thisApp.removeBlocId(i.id); }}
             />;
           })}
