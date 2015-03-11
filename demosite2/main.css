@@ -23,6 +23,10 @@ pre, ul {
   margin: 0 auto;
 }
 
+.inlined {
+  display: inline-block;
+}
+
 .bloc-outer {
   margin: 10px auto;
 }

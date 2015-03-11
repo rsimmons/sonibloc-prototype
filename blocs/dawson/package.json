@@ -4,11 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "jsxwatch": "jsx --watch src/ build/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Russel Simmons <russ@rsimmons.org>",
   "license": "MIT",
   "dependencies": {
+    "react": "^0.13.0",
     "uid": "0.0.2"
+  },
+  "devDependencies": {
+    "react-tools": "^0.13.0"
   }
 }
