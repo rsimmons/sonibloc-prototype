@@ -58,12 +58,11 @@ var getWhiteKeyWidth = function (number_of_white_keys) {
  * @param  {object} user_settings
  */
 var init = function (us) {
-    var container;
-
     user_settings = us || {};
 
+    var container = user_settings.container || document.getElementById(user_settings.id || 'keyboard');
+
     settings = {
-        id:             user_settings.id || 'keyboard',
         octaves:        user_settings.octaves || 3,
         width:          user_settings.width,
         height:         user_settings.height,
@@ -75,8 +74,6 @@ var init = function (us) {
         keyboardLayout: user_settings.keyboardLayout || 'en'
     };
 
-    container = document.getElementById(settings.id);
-
     if (typeof settings.width === 'undefined') {
         settings.width = container.offsetWidth;
     }
@@ -87,7 +84,7 @@ var init = function (us) {
 
     settings.startOctave = parseInt(settings.startNote.charAt(1), 10);
 
-    createKeyboard();
+    createKeyboard(container);
     addListeners.call(this, container);
 };
 
@@ -356,9 +353,9 @@ var setKeyPressOffset = function (sorted_white_notes) {
     settings.keyPressOffset = sorted_white_notes[0] === 'C' ? 0 : 1;
 };
 
-var createKeyboard = function () {
+var createKeyboard = function (container) {
     var keyboard = {
-        container: document.getElementById(settings.id),
+        container: container,
         el: document.createElement('ul'),
         whiteNotes: orderNotes(['C', 'D', 'E', 'F', 'G', 'A', 'B']),
         notesWithSharps: orderNotes(['C', 'D', 'F', 'G', 'A']),
@@ -515,11 +512,8 @@ module.exports = sonibloc.createBloc(
     function() {
         var midiOut = this.addMidiOutput('midi');
 
-        // fill interface into container
-        this.container.innerHTML = '<div id="qwerty-holder"></div>';
-
         var keyboard = new QwertyHancock({
-            id: 'qwerty-holder',
+            container: this.container,
             width: 460,
             height: 150,
             octaves: 2,
