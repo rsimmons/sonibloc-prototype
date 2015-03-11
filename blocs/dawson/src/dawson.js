@@ -113,7 +113,7 @@ var DawsonApp = React.createClass({
           })}
         </div>
         <form className="add-bloc-form">
-          <label>Add <select ref="addBlocSelect" onChange={this.onAddBlocSelectChange}>
+          <label>Add Bloc <select ref="addBlocSelect" onChange={this.onAddBlocSelectChange}>
             <option />
             {availableBlocs.map(function(i) {
               return <option key={i.name}>{i.name}</option>;
