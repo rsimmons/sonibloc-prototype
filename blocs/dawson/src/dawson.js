@@ -68,7 +68,7 @@ var DawsonApp = React.createClass({
     if (selectElem.selectedIndex > 0) {
       var selBloc = availableBlocs[selectElem.selectedIndex-1];
       var newId = uid(12);
-      var newBlocs = this.state.blocs.concat({id: newId, blocClass: selBloc._class, name: selBloc.name + '-' + newId.substring(0, 5)});
+      var newBlocs = this.state.blocs.concat({id: newId, blocClass: selBloc._class, name: selBloc.name});
 
       console.log('adding bloc', selBloc.name, 'id', newId);
 
