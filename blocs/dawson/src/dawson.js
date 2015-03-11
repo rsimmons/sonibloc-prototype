@@ -33,11 +33,25 @@ var BlocListItem = React.createClass({
   render: function() {
     return (
       <div className="bloc-outer">
-        <div className="bloc-info">{this.props.name}</div>
-        <form className="inlined" onSubmit={this.submitRemove}>
-          <button className="bloc-remove">X</button>
-        </form>
-        <div ref="blocContainer" className="bloc-container" />
+        <div className="bloc-pins-column">
+          <div className="bloc-pins bloc-pins-input">
+            <div>&#x25b9; foo</div>
+            <div>&#x25b9; reallyLongNameAllOneWord</div>
+          </div>
+          <div className="bloc-pins bloc-pins-output">
+            <div>foo &#x25b8;</div>
+            <div>bazQuux &#x25b8;</div>
+          </div>
+        </div>
+        <div className="bloc-main-column">
+          <div>
+            <div className="bloc-info">{this.props.name}</div>
+            <form className="inlined" onSubmit={this.submitRemove}>
+              <button className="bloc-remove">X</button>
+            </form>
+          </div>
+          <div ref="blocContainer" className="bloc-container" />
+        </div>
       </div>
     );
   },
@@ -98,7 +112,7 @@ var DawsonApp = React.createClass({
             />;
           })}
         </div>
-        <form>
+        <form className="add-bloc-form">
           <label>Add <select ref="addBlocSelect" onChange={this.onAddBlocSelectChange}>
             <option />
             {availableBlocs.map(function(i) {

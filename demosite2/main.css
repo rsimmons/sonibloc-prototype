@@ -31,6 +31,10 @@ pre, ul {
   margin: 10px auto;
 }
 
+.bloc-main-column {
+  display: inline-block;
+}
+
 .bloc-info {
   display: inline-block;
   padding: 10px 20px;
@@ -52,10 +56,49 @@ pre, ul {
 }
 
 .bloc-container {
+  display: inline-block;
   background: white;
 }
+
 .bloc-container-empty {
   padding: 10px 20px;
   font-style: italic;
   color: #555;
 }
+
+.bloc-pins-column {
+  display: inline-block;
+  vertical-align: top;
+  height: 100%;
+/*  color: #ddd;
+  background: #444;
+*/}
+
+.bloc-pins {
+  display: inline-block;
+  vertical-align: top;
+  width: 100px;
+  word-break: break-all;
+  margin-right: 5px;
+}
+
+.bloc-pins div {
+  background: #ddd;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.bloc-pins-input {
+  /*padding-right: 1px;*/
+}
+
+.bloc-pins-output {
+  text-align: right;
+  /*padding-left: 1px;*/
+}
+
+.add-bloc-form {
+  display: inline-block;
+  margin-left: 210px;
+}
+
