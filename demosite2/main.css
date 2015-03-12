@@ -37,13 +37,13 @@ pre, ul {
 
 .bloc-info {
   display: inline-block;
-  padding: 10px 20px;
+  padding: 5px 20px;
   background: #ccc;
 }
 
 .bloc-remove {
   display: inline-block;
-  padding: 10px 20px;
+  padding: 5px 10px;
   text-align: center;
   background: rgb(165, 187, 255);
   cursor: pointer;
@@ -86,15 +86,17 @@ pre, ul {
   background: #ddd;
   margin-bottom: 5px;
   cursor: pointer;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
-.bloc-pins-input {
-  /*padding-right: 1px;*/
+.bloc-pins-input div {
+  padding-left: 2px;
 }
 
-.bloc-pins-output {
+.bloc-pins-output div {
   text-align: right;
-  /*padding-left: 1px;*/
+  padding-right: 2px;
 }
 
 .add-bloc-form {
