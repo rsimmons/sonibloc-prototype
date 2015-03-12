@@ -28,12 +28,12 @@ var BlocListItem = React.createClass({
         <div className="bloc-pins-column">
           <div className="bloc-pins bloc-pins-input">
             {this.props.pins.inputs.map(function(i) {
-              return <div key="{i}" onClick={function(e) { e.preventDefault(); thisComponent.props.pinClickFunc('input', i); }}>&#x25b9; {i}</div>;
+              return <div key={i} onClick={function(e) { e.preventDefault(); thisComponent.props.pinClickFunc('input', i); }}>&#x25b9; {i}</div>;
             })}
           </div>
           <div className="bloc-pins bloc-pins-output">
             {this.props.pins.outputs.map(function(i) {
-              return <div key="{i}" onClick={function(e) { e.preventDefault(); thisComponent.props.pinClickFunc('output', i); }}>{i} &#x25b8;</div>;
+              return <div key={i} onClick={function(e) { e.preventDefault(); thisComponent.props.pinClickFunc('output', i); }}>{i} &#x25b8;</div>;
             })}
           </div>
         </div>
