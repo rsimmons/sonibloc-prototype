@@ -68,6 +68,7 @@ var DawsonApp = React.createClass({
 
     var newBlocs = this.state.blocs.concat({
       id: newId,
+      blocObj: blocObj,
       containerElem: containerElem,
       pins: {
         inputs: Object.getOwnPropertyNames(blocObj.inputs).sort(),
@@ -97,6 +98,7 @@ var DawsonApp = React.createClass({
     for (var i = 0; i < this.state.blocs.length; i++) {
       if (this.state.blocs[i].id === blocId) {
         removeIdx = i;
+        this.state.blocs[i].blocObj.shutdown(); // give bloc a chance to to cleanup (stop timers, etc.)
         break;
       }
     }
