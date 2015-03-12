@@ -26,12 +26,14 @@ var BlocListItem = React.createClass({
       <div className="bloc-outer">
         <div className="bloc-pins-column">
           <div className="bloc-pins bloc-pins-input">
-            <div>&#x25b9; foo</div>
-            <div>&#x25b9; reallyLongNameAllOneWord</div>
+            {this.props.pins.inputs.map(function(i) {
+              return <div key="{i}">&#x25b9; {i}</div>;
+            })}
           </div>
           <div className="bloc-pins bloc-pins-output">
-            <div>foo &#x25b8;</div>
-            <div>bazQuux &#x25b8;</div>
+            {this.props.pins.outputs.map(function(i) {
+              return <div key="{i}">&#x25b8; {i}</div>;
+            })}
           </div>
         </div>
         <div className="bloc-main-column">
@@ -69,7 +71,15 @@ var DawsonApp = React.createClass({
       containerElem.textContent = '(no interface)';
     }
 
-    var newBlocs = this.state.blocs.concat({id: newId, containerElem: containerElem, name: nameHint + ' (' + newId.substring(0, 7) + ')'});
+    var newBlocs = this.state.blocs.concat({
+      id: newId,
+      containerElem: containerElem,
+      pins: {
+        inputs: Object.getOwnPropertyNames(blocObj.inputs).sort(),
+        outputs: Object.getOwnPropertyNames(blocObj.outputs).sort(),
+      },
+      name: nameHint + ' (' + newId.substring(0, 7) + ')'
+    });
 
     this.setState({blocs: newBlocs});
   },
@@ -114,6 +124,7 @@ var DawsonApp = React.createClass({
               key={i.id}
               name={i.name}
               containerElem={i.containerElem}
+              pins={i.pins}
               removeFunc={function() { thisApp.removeBlocId(i.id); }}
             />;
           })}
