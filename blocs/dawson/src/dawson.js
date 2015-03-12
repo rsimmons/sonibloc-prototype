@@ -22,17 +22,18 @@ var BlocListItem = React.createClass({
   },
 
   render: function() {
+    var thisComponent = this;
     return (
       <div className="bloc-outer">
         <div className="bloc-pins-column">
           <div className="bloc-pins bloc-pins-input">
             {this.props.pins.inputs.map(function(i) {
-              return <div key="{i}">&#x25b9; {i}</div>;
+              return <div key="{i}" onClick={function(e) { e.preventDefault(); thisComponent.props.pinClickFunc('input', i); }}>&#x25b9; {i}</div>;
             })}
           </div>
           <div className="bloc-pins bloc-pins-output">
             {this.props.pins.outputs.map(function(i) {
-              return <div key="{i}">&#x25b8; {i}</div>;
+              return <div key="{i}" onClick={function(e) { e.preventDefault(); thisComponent.props.pinClickFunc('output', i); }}>{i} &#x25b8;</div>;
             })}
           </div>
         </div>
@@ -115,7 +116,7 @@ var DawsonApp = React.createClass({
   },
 
   render: function() {
-    var thisApp = this;
+    var thisComponent = this;
     return (
       <div>
         <div>
@@ -125,7 +126,8 @@ var DawsonApp = React.createClass({
               name={i.name}
               containerElem={i.containerElem}
               pins={i.pins}
-              removeFunc={function() { thisApp.removeBlocId(i.id); }}
+              removeFunc={function() { thisComponent.removeBlocId(i.id); }}
+              pinClickFunc={function(inOut, name) { console.log('bloc', i.id, 'got click on', inOut, name); }}
             />;
           })}
         </div>
