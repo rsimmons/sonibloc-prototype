@@ -9,6 +9,6 @@
   "author": "Russel Simmons <russ@rsimmons.org>",
   "license": "MIT",
   "dependencies": {
-    "sonibloc": "file:../../sonibloc"
+    "sonibloc": "sonibloc"
   }
 }
