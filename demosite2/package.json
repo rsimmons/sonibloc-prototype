@@ -5,7 +5,7 @@
   "description": "Second demo site for Sonibloc prototype",
   "main": "index.js",
   "scripts": {
-    "build": "browserify index.js | uglifyjs -mc > bundle.js",
+    "build-prod": "NODE_ENV=production browserify index.js | uglifyjs -mc > bundle.js",
     "watch": "watchify index.js -o bundle.js -v",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
