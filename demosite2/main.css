@@ -60,12 +60,6 @@ pre, ul {
   background: white;
 }
 
-.bloc-container-empty {
-  padding: 10px 20px;
-  font-style: italic;
-  color: #555;
-}
-
 .bloc-pins-column {
   display: inline-block;
   vertical-align: top;

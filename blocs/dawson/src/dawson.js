@@ -66,12 +66,6 @@ var DawsonApp = React.createClass({
     // instantiate the actual bloc
     var blocObj = blocClass.create(this.props.audioContext, containerElem);
 
-    // if bloc didn't create any view/UI, then put placeholder stuff
-    if (!containerElem.hasChildNodes()) {
-      containerElem.className += ' bloc-container-empty';
-      containerElem.textContent = '(no interface)';
-    }
-
     var newBlocs = this.state.blocs.concat({
       id: newId,
       containerElem: containerElem,
