@@ -17,23 +17,76 @@ AudioInput.prototype.type = 'audio';
 // hacky; used in AudioOutput.connect() to detect what's being connected to
 AudioInput.prototype.soniblocInput = true;
 
-function AudioOutput(node) {
+function AudioOutput(node, parent) {
   this.node = node;
+  this.parent = parent;
+
+  // these targets could be either AudioInput instances or raw AudioNode-ish objects.
+  // each item is object with 'target' and 'dummyNode' properties
+  this.connectedTargets = [];
+
+  // pool of reusable dummy gain nodes
+  this.dummyPool = [];
 }
 
 AudioOutput.prototype.type = 'audio';
 
 AudioOutput.prototype.connect = function(target) {
+  for (var i = 0; i < this.connectedTargets.length; i++) {
+    if (this.connectedTargets[i].target === target) {
+      // don't connect again to same thing if already connected
+      return;
+    }
+  }
+
+  // this dummyNode workaround is required because Web Audio API currently doesn't let us
+  //  disconnect a node from a single other node, and we need that. so for each target
+  //  we connect via a different dummy node. we save old ones since we can't destroy them.
+  var dummyNode;
+
+  // draw from pool if we can, otherwise create new one
+  if (this.dummyPool.length > 0) {
+    dummyNode = this.dummyPool.pop();
+  } else {
+    dummyNode = this.parent.audioContext.createGain();
+    this.node.connect(dummyNode);
+  }
+
+  // make real connection via dummy
   if (target.soniblocInput) {
-    this.node.connect(target.node);
+    dummyNode.connect(target.node);
   } else {
     // assume it's a raw AudioNode/AudioParam/AudioOutputNode
-    this.node.connect(target);
+    dummyNode.connect(target);
   }
+
+  this.connectedTargets.push({target: target, dummyNode: dummyNode});
 }
 
-AudioOutput.prototype.disconnect = function() {
-  this.node.disconnect();
+AudioOutput.prototype.disconnect = function(target) {
+  if (target === undefined) {
+    for (var i = 0; i < this.connectedTargets.length; i++) {
+      var ct = this.connectedTargets[i];
+      ct.dummyNode.disconnect();
+      this.dummyPool.push(ct.dummyNode);
+    }
+    this.connectedTargets = [];
+  } else {
+    var matched = false;
+    for (var i = 0; i < this.connectedTargets.length; i++) {
+      var ct = this.connectedTargets[i];
+      if (ct.target === target) {
+        ct.dummyNode.disconnect();
+        this.dummyPool.push(ct.dummyNode);
+        this.connectedTargets.splice(i, 1);
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      throw new Error('Can\'t disconnect because not connected');
+    }
+  }
 }
 
 function MidiInput(parent) {
@@ -207,7 +260,7 @@ BlocBase.prototype.addAudioOutput = function(name, node) {
     throw new Error('Already have output named ' + name + ', cannot add another');
   }
   
-  this.outputs[name] = new AudioOutput(node);
+  this.outputs[name] = new AudioOutput(node, this);
 }
 
 BlocBase.prototype.addMidiInput = function(name) {
