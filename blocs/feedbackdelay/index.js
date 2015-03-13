@@ -9,7 +9,7 @@ module.exports = sonibloc.createBloc(function() {
   dryNode.gain.value = 1;
 
   var delayNode = ctx.createDelay();
-  delayNode.delayTime.value = 0.005;
+  delayNode.delayTime.value = 0.05;
 
   var feedbackGainNode = ctx.createGain();
   feedbackGainNode.gain.value = 0.7;
