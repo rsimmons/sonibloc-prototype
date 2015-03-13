@@ -9,6 +9,7 @@ var availableBlocs = [
   {name: 'lumberjack', _class: require('sonibloc-lumberjack')},
   {name: 'feedbackdelay', _class: require('sonibloc-feedbackdelay')},
   {name: 'qwerty-hancock', _class: require('sonibloc-qwerty-hancock')},
+  {name: 'audio-output', _class: require('sonibloc-audio-output')},
 ];
 
 var BlocListItem = React.createClass({
