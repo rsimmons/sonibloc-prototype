@@ -14,7 +14,7 @@ var availableBlocs = [
 
 var BlocListItem = React.createClass({
   componentDidMount: function() {
-    this.refs.outerContainer.getDOMNode().appendChild(this.props.containerElem);
+    React.findDOMNode(this.refs.outerContainer).appendChild(this.props.containerElem);
   },
 
   submitRemove: function(e) {
@@ -84,7 +84,7 @@ var DawsonApp = React.createClass({
     var newId = 'bloc-' + uid(12);
 
     // create a raw-DOM container element to contain bloc view/UI
-    var document = this.getDOMNode().ownerDocument; // is this safe? seems OK..
+    var document = React.findDOMNode(this).ownerDocument; // is this safe? seems OK..
     var containerElem = document.createElement('div');
 
     // instantiate the actual bloc
@@ -105,7 +105,7 @@ var DawsonApp = React.createClass({
   },
 
   handleAddBlocSelectChange: function(e) {
-    var selectElem = this.refs.addBlocSelect.getDOMNode();
+    var selectElem = React.findDOMNode(this.refs.addBlocSelect);
 
     if (selectElem.selectedIndex > 0) {
       var selBloc = availableBlocs[selectElem.selectedIndex-1];
