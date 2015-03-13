@@ -61,8 +61,17 @@ MidiOutput.prototype.connect = function(midiInput) {
   }
 }
 
-MidiOutput.prototype.disconnect = function() {
-  this.connectedInputs = [];
+MidiOutput.prototype.disconnect = function(midiInput) {
+  if (midiInput === undefined) {
+    this.connectedInputs = [];
+  } else {
+    var idx = this.connectedInputs.indexOf(midiInput);
+    if (idx < 0) {
+      throw new Error('Can\'t disconnect because not connected');
+    } else {
+      this.connectedInputs.splice(idx, 1);
+    }
+  }
 }
 
 MidiInput.prototype.type = MidiOutput.prototype.type = 'midi';
@@ -127,8 +136,17 @@ TriggerOutput.prototype.connect = function(triggerInput) {
   }
 }
 
-TriggerOutput.prototype.disconnect = function() {
-  this.connectedInputs = [];
+TriggerOutput.prototype.disconnect = function(triggerInput) {
+  if (triggerInput === undefined) {
+    this.connectedInputs = [];
+  } else {
+    var idx = this.connectedInputs.indexOf(triggerInput);
+    if (idx < 0) {
+      throw new Error('Can\'t disconnect because not connected');
+    } else {
+      this.connectedInputs.splice(idx, 1);
+    }
+  }
 }
 
 TriggerInput.prototype.type = TriggerOutput.prototype.type = 'trigger';

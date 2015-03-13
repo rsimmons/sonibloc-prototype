@@ -155,7 +155,9 @@ var DawsonApp = React.createClass({
         var newId = 'cxn-' + uid(12);
         var newCxns = this.state.cxns.concat({
           id: newId,
-          desc: 'FROM ' + outputPin.blocId + ' ' + outputPin.name + ' TO ' + inputPin.blocId + ' ' + inputPin.name,
+          // these pins objects don't appear to need to be copied, no other refs
+          output: outputPin,
+          input: inputPin,
         });
 
         this.setState({cxns: newCxns});
@@ -191,7 +193,28 @@ var DawsonApp = React.createClass({
   },
 
   removeCxnId: function(cxnId) {
-    // TODO: implement
+    var newCxns = this.state.cxns.slice(); // shallow copy
+
+    var removeIdx;
+    for (var i = 0; i < this.state.cxns.length; i++) {
+      if (this.state.cxns[i].id === cxnId) {
+        // disconnect actual pins
+        var cxn = this.state.cxns[i];
+        var fromBlocObj = this.blocFromId(cxn.output.blocId).blocObj;
+        var toBlocObj = this.blocFromId(cxn.input.blocId).blocObj;
+        fromBlocObj.outputs[cxn.output.name].disconnect(toBlocObj.inputs[cxn.input.name]);
+
+        removeIdx = i;
+        break;
+      }
+    }
+    if (removeIdx == undefined) {
+      throw new Error('cxn id not found');
+    }
+
+    newCxns.splice(removeIdx, 1);
+
+    this.setState({cxns: newCxns});
   },
 
   render: function() {
@@ -223,7 +246,7 @@ var DawsonApp = React.createClass({
             {this.state.cxns.map(function(i) {
               return <CxnListItem
                 key={i.id}
-                desc={i.desc}
+                desc={'FROM ' + i.output.blocId + ' ' + i.output.name + ' TO ' + i.input.blocId + ' ' + i.input.name}
                 removeFunc={function() { thisComponent.removeCxnId(i.id); }}
               />;
             })}
